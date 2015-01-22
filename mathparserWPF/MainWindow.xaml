@@ -1,0 +1,57 @@
+﻿<Window x:Class="MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:wpfx="clr-namespace:mathparserWPF.htb"
+        xmlns:tapp="clr-namespace:mathparserWPF.testapp"
+        Title="MainWindow" Height="232" Width="217">
+
+    <!--Use of resources in separate place to make it easier to apply styles-->
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary 
+                    Source="resources/resources1.xaml">
+                </ResourceDictionary>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <!--Databinding. If you have your data source, remember that it has to be in form of property with INotifyPropertyChanged interface to be able to update WPF-->
+    <Window.DataContext>
+        <tapp:main/>
+    </Window.DataContext>
+
+    <Grid Background="DarkGray">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="35"/>
+            <RowDefinition/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <ComboBox Margin="5" Width="70" HorizontalAlignment="Right" ItemsSource="{Binding cultures}" SelectedItem="{Binding selectedCultureName}"></ComboBox>
+        
+        <!--Here is the simple way to handle colored text. Since one control can do only half of job, this controls are one atop other and transparent where needed.
+        You can also show wrong functions simply by using spell check and a custom dictionary. This can be done with textbox and custom file that imitates word dictionaries-->
+        <Border Margin="5" Grid.Row="1" CornerRadius="3" Background="WhiteSmoke" BorderBrush="#888888" BorderThickness="1">
+            <Grid Margin="6">
+                <wpfx:HighlightedTextBlock Padding="2,0,0,0" FontSize="18" x:Name="formula" HighlightFuncColor="Blue" HighlightVarColor="Magenta" HighlightNumColor="Brown" Foreground="DarkGreen" Background="Transparent" VerticalAlignment="Stretch" TextWrapping="Wrap" 
+                                   HighlightText="{Binding ToEvaluate, Mode=TwoWay}" HighlightFunctions="{Binding ListOfFunctions, Mode=OneWay}" HighlightVars="{Binding ListOfVars, Mode=OneWay}" Culture="{Binding selectedCulture}" />
+                <TextBox Style="{StaticResource overformula}" Name="formulatextbox" Foreground="Transparent" FontSize="18" Text="{Binding ToEvaluate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, NotifyOnSourceUpdated=True}" TextWrapping="Wrap" />
+            </Grid>
+        </Border>
+        
+        <!--Simple textblock to show result or error. You can use different colors, icons or other ways to decorate error state-->
+        <TextBlock FontSize="16" Name="res" Height="22" Grid.Row="2" Margin="5" HorizontalAlignment="Right" TextAlignment="Right">
+            <TextBlock.Style>
+                <Style TargetType="TextBlock">
+                    <Setter Property="Text" Value="{Binding Result}"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding hasError}" Value="True">
+                            <Setter Property="Text" Value="--"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </TextBlock.Style>
+        </TextBlock>
+
+    </Grid>
+</Window>
